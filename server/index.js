@@ -22,7 +22,7 @@ export const userSocketMap = {};
 // socket.io connection handler
 io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
-    console.log(`user connected through socket.io and userid is: ${userId}`);
+    // console.log(`user connected through socket.io and userid is: ${userId}`);
 
     if (userId) {
         userSocketMap[userId] = socket.id;
@@ -32,9 +32,9 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
     socket.on("disconnect", () => {
-        console.log("User Disconnected", userId);
+        // console.log("User Disconnected", userId);
         delete userSocketMap[userId];
-        io.emit("getonlineUsers", Object.keys(userSocketMap));
+        io.emit("getOnlineUsers", Object.keys(userSocketMap));
     });
 });
 

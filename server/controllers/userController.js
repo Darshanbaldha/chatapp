@@ -5,53 +5,48 @@ import cloudinary from "../lib/cloudinary.js";
 
 // Signup controller
 export const signup = async (req, res) => {
-    const { fullname, password, email, bio } = req.body;
-
+    const { fullName, password, email, bio } = req.body;
     try {
-        if (!fullname || !password || !email || !bio) {
+        if (!fullName || !password || !email || !bio) {
             return res.json({ sucess: false, message: "Missing Details" });
-        } else {
-            const user = await User.findOne({ email });
-            if (user) {
-                return res.json({
-                    sucess: false,
-                    message: "User already exists.",
-                });
-            } else {
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(password, salt);
-
-                const newUser = await User.create({
-                    fullname,
-                    email,
-                    password: hashedPassword,
-                    bio,
-                });
-
-                const token = generateToken(newUser._id);
-                res.json({
-                    success: true,
-                    userData: newUser,
-                    token,
-                    message: "Account created. ",
-                });
-            }
         }
-    } catch (error) {
+        const user = await User.findOne({ email });
+
+        if (user) {
+            return res.json({
+                sucess: false,
+                message: "User already exists.",
+            });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = await User.create({
+            fullName,
+            email,
+            password: hashedPassword,
+            bio,
+        });
+
+        const token = generateToken(newUser._id);
         res.json({
             success: true,
             userData: newUser,
             token,
+            message: "Account created. ",
+        });
+    } catch (error) {
+        res.json({
+            success: false,
             message: error.message,
         });
-        console.log(error.message);
     }
 };
 
 // Login controller
 export const login = async (req, res) => {
     try {
-        const { password, email } = req.body;
+        const { email, password } = req.body;
         const userData = await User.findOne({ email });
 
         const isPasswordCorrect = await bcrypt.compare(
@@ -66,7 +61,7 @@ export const login = async (req, res) => {
             });
         }
 
-        const token = generateToken(newUser._id);
+        const token = generateToken(userData._id);
         res.json({
             success: true,
             userData,
@@ -75,12 +70,9 @@ export const login = async (req, res) => {
         });
     } catch (error) {
         res.json({
-            success: true,
-            userData: newUser,
-            token,
+            success: false,
             message: error.message,
         });
-        console.log(error.message);
     }
 };
 
@@ -103,7 +95,8 @@ export const updateProfile = async (req, res) => {
                 { new: true }
             );
         } else {
-            const upload = await cloudinary.uploader.upload(profilePic);
+            // const profilePic = req.file.path;
+            const upload = await cloudinary.uploader.upload(profilePic, { folder: "profiles" });
 
             updatedUser = await User.findByIdAndUpdate(
                 userId,
@@ -114,7 +107,6 @@ export const updateProfile = async (req, res) => {
 
         res.json({ success: true, user: updatedUser });
     } catch (error) {
-        console.log(error.message);
         res.json({ success: false, message: error.message });
     }
 };

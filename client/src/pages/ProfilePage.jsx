@@ -1,16 +1,32 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import assets from "../assets/assets";
+import assets from "../assets/assets.js";
+import { AuthContext } from "../context/AuthContext.jsx";
 
 export default function ProfilePage() {
+
+    const { authUser, updateProfile } = useContext(AuthContext)
+
     const [selectedImg, setSelectedImg] = useState(null);
     const navigate = useNavigate();
-    const [name, setName] = useState("Dumy");
-    const [bio, setBio] = useState("Hi Everyone, I am using Chat app.");
+    const [name, setName] = useState(authUser.fullName);
+    const [bio, setBio] = useState(authUser.bio);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        navigate('/');
+        if (!selectedImg) {
+            await updateProfile({ fullName: name, bio })
+            navigate('/');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(selectedImg)
+        reader.onload = async () => {
+            const base64Image = reader.result;
+            await updateProfile({ profilePic: base64Image, fullName: name, bio })
+            navigate('/');
+        }
     }
 
     return (
@@ -21,14 +37,14 @@ export default function ProfilePage() {
                         <h3 className="text-lg">Profile details</h3>
                         <label htmlFor="avtar" className="flex items-center gap-3 cursor-pointer">
                             <input type="file" onChange={(e) => { setSelectedImg(e.target.files[0]) }} id="avtar" accept=".png, .jpg, .jpeg" hidden />
-                            <img src={selectedImg ? URL.createObjectURL(selectedImg) : assets.avatar_icon} alt="User Image" className={`w-12 h-12 ${selectedImg && "rounded-full"}`} />
+                            <img src={selectedImg ? URL.createObjectURL(selectedImg) : authUser?.profilePic || assets.avatar_icon} alt="User Image" className={`w-12 h-12 rounded-full ${selectedImg && "rounded-full"}`} />
                             Upload profile image
                         </label>
                         <input type="text" onChange={(e) => setName(e.target.value)} value={name} placeholder="Your name" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
                         <textarea onChange={(e) => setBio(e.target.value)} value={bio} rows={4} className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Write provide bio" required></textarea>
                         <button type="submit" className="bg-gradient-to-r from-purple-400 to-violet-600 text-white p-2 rounded-full text-lg cursor-pointer">Save</button>
                     </form>
-                    <img src={assets.logo_icon} alt="Logo" className="max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10" />
+                    <img src={authUser?.profilePic || assets.logo_icon} alt="Logo" className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10 ${selectedImg && "rounded-full"}`} />
                 </div>
             </div>
         </>
