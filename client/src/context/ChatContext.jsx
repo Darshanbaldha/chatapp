@@ -9,7 +9,7 @@ export const ChatProvider = ({ children }) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [unseenMessages, setUnseenMessages] = useState([]);
-
+    const {socket, axios} = useContext(AuthContext)
     // function to get all user to sidebar
     const getUser = async () => {
         try {
@@ -83,7 +83,6 @@ export const ChatProvider = ({ children }) => {
         return () => unsubscribeFrommessages();
     }, [socket, selectedUser])
     useEffect(() => {
-        console.log("ChatContext users updated:", users);
     }, [users]);
 
     const value = {
