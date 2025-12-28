@@ -11,6 +11,8 @@ export default function Sidebar() {
 
     const [input, setInput] = useState(false)
 
+    const [open, setOpen] = useState(false);
+
     const filteredUsers = input ? users.filter((user) => user.fullName.toLowerCase().includes(input.toLowerCase())) : users;
 
     const navigate = useNavigate();
@@ -20,17 +22,29 @@ export default function Sidebar() {
     }, [onlineUser])
     return (
         <>
-            <div className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white ${selectedUser ? 'max-md:hidden' : ''}`}>
+            <div className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll overflow-x-hidden overflow-y-auto text-white ${selectedUser ? 'max-md:hidden' : ''}`}>
                 <div className="pb-5">
                     <div className="flex justify-between items-center">
                         <img src={assets.logo} alt="Logo" className="max-w-40" />
                         <div className="relative py-2 group">
-                            <img src={assets.menu_icon} alt="Menu_Icon" className="max-h-5 cursor-pointer" />
-                            <div className="absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 hidden group-hover:block">
-                                <p onClick={() => navigate('/profile')} className="cursor-pointer text-sm">Edit Profile</p>
+                            {/* <img src={assets.menu_icon} alt="Menu_Icon" className="max-h-5 cursor-pointer" /> */}
+                            <button onClick={() => {setOpen(!open);}} className="p-2 cursor-pointer overflow-visible relative z-50">
+                                <img src={assets.menu_icon} alt="Menu" className="h-5 w-5" />
+                            </button>
+
+                            <div className={`absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100  group-hover:block ${open ? "block" : "hidden"}`}>
+                                <p onClick={() => { navigate('/profile'); setOpen(false); }} className="cursor-pointer text-sm">Edit Profile</p>
                                 <hr className="my-2 border-t border-gray-500" />
-                                <p onClick={() => logout()} className="cursor-pointer text-sm">Logout</p>
+                                <p onClick={() => { logout(); setOpen(false);}} className="cursor-pointer text-sm">Logout</p>
                             </div>
+
+                            {/* <div
+  className={`fixed top-14 right-5 z-[9999] w-32 p-5 rounded-md
+  bg-red-500 text-white
+  ${open ? "block" : "hidden"}`}
+>
+  MENU TEST
+</div> */}
                         </div>
                     </div>
                     <div className="rounded-full bg-[#282142] flex items-center gap-2 py-3 px-4 mt-5">
